@@ -2,64 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Order Menu</title>
-    <!-- Telegram's special script. This is required! -->
+    <!-- This is the official Telegram script that enables Mini App functionality -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* This CSS uses Telegram's theme variables to make your app look native */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             color: var(--tg-theme-text-color);
             background-color: var(--tg-theme-bg-color);
             margin: 0;
             padding: 15px;
+            -webkit-font-smoothing: antialiased;
         }
         .container {
-            max-width: 390px;
+            max-width: 420px;
             margin: 0 auto;
         }
         h1 {
             font-size: 24px;
             margin-bottom: 20px;
+            font-weight: 600;
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
         label {
             display: block;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            font-size: 16px;
         }
-        select, textarea, input {
+        select, textarea, input[type="number"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid var(--tg-theme-hint-color);
             border-radius: 8px;
             background-color: var(--tg-theme-secondary-bg-color);
             color: var(--tg-theme-text-color);
-            box-sizing: border-box; /* Important for width */
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Our Menu</h1>
+        
+        <!-- User Information Form -->
         <div class="form-group">
-            <label for="item-select">Choose an item:</label>
-            <select id="item-select">
-                <option value="Pizza">Pizza - $10</option>
-                <option value="Burger">Burger - $8</option>
-                <option value="Salad">Salad - $7</option>
-                <option value="Pasta">Pasta - $12</option>
-            </select>
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" placeholder="Enter your full name">
         </div>
         <div class="form-group">
-            <label for="quantity">Quantity:</label>
-            <input type="number" id="quantity" value="1" min="1">
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" placeholder="Enter your phone number">
         </div>
         <div class="form-group">
-            <label for="comments">Special Instructions:</label>
-            <textarea id="comments" rows="3" placeholder="e.g., no onions, extra cheese"></textarea>
+            <label for="address">Delivery Address:</label>
+            <textarea id="address" rows="3" placeholder="Enter your complete delivery address"></textarea>
+        </div>
+
+        <!-- Order Details Form -->
+        <div class="form-group">
+            <label for="order-details">Your Order:</label>
+            <textarea id="order-details" rows="4" placeholder="e.g., 1x Pizza, 2x Burger with extra cheese"></textarea>
         </div>
     </div>
 
@@ -67,34 +78,42 @@
         // Initialize the Telegram Web App object
         const tg = window.Telegram.WebApp;
 
-        // This is a crucial step to let Telegram know the app is ready.
+        // Let Telegram know the app is ready and expand it
         tg.ready();
+        tg.expand();
 
-        // Configure the main button that will appear at the bottom
-        tg.MainButton.text = "Place Order";
+        // Configure the main button at the bottom of the screen
+        tg.MainButton.text = "Confirm and Place Order";
         tg.MainButton.textColor = "#FFFFFF"; // White text
-        tg.MainButton.color = "#2481CC";     // Blue button
+        tg.MainButton.color = "#2481CC";     // A nice blue color
         tg.MainButton.show();
 
-        // Register a function to be called when the main button is clicked
+        // Register the function to be called when the main button is clicked
         tg.onEvent('mainButtonClicked', function() {
-            // Get the data from the form
-            const selectedItem = document.getElementById('item-select').value;
-            const quantity = document.getElementById('quantity').value;
-            const comments = document.getElementById('comments').value;
+            // Get all the data from the form fields
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const orderDetails = document.getElementById('order-details').value;
+            
+            // Basic validation
+            if (!name || !phone || !address || !orderDetails) {
+                tg.showAlert("Please fill out all the fields before placing your order.");
+                return;
+            }
 
-            // Create a data object
+            // Create a JSON object with all the order data
             const orderData = {
-                item: selectedItem,
-                quantity: quantity,
-                comments: comments
+                name: name,
+                phone: phone,
+                address: address,
+                order: orderDetails
             };
 
-            // Send the data back to the bot
+            // Use tg.sendData() to send the JSON object back to your bot
             tg.sendData(JSON.stringify(orderData));
 
-            // Optional: Close the Mini App window after sending data
-            // tg.close();
+            // The Mini App will close automatically after sending data
         });
     </script>
 </body>
