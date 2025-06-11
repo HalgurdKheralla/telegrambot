@@ -124,49 +124,36 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+    tg.MainButton.text = "Confirm and Place Order";
+    tg.MainButton.show();
 
-        // --- Standard Mini App setup ---
-        tg.ready();
-        tg.expand();
+    // SIMPLIFIED FOR DEBUGGING
+    tg.onEvent('mainButtonClicked', function() {
+        const name = document.getElementById('name').value;
+        const phone = document.getElementById('phone').value;
+        const address = document.getElementById('address').value;
+        const orderDetails = document.getElementById('order-details').value;
+        
+        if (!name || !phone || !address || !orderDetails) {
+            tg.showAlert("Please fill out all fields.");
+            return;
+        }
 
-        // --- Configure the Main Button ---
-        tg.MainButton.text = "Confirm and Place Order";
-        tg.MainButton.show();
+        const orderData = {
+            name: name,
+            phone: phone,
+            address: address,
+            order: orderDetails
+        };
 
-        // --- FUNCTIONALITY FIX: Handle the button click ---
-        tg.onEvent('mainButtonClicked', function() {
-            // Get all data
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const address = document.getElementById('address').value;
-            const orderDetails = document.getElementById('order-details').value;
-            
-            // --- 1. VALIDATION: Check if essential fields are empty ---
-            if (!name || !phone || !address || !orderDetails) {
-                tg.showAlert("Please fill out all fields before placing your order.");
-                return; // Stop execution if validation fails
-            }
-
-            // --- 2. FEEDBACK: Show a loading indicator on the button ---
-            tg.MainButton.showProgress(false); // `false` for a spinning circle
-            tg.MainButton.disable(); // Disable button to prevent multiple clicks
-
-            // Create the JSON object to send to the bot
-            const orderData = {
-                name: name,
-                phone: phone,
-                address: address,
-                order: orderDetails
-            };
-
-            // --- 3. SEND DATA: Send the data to your bot ---
-            // Use a small delay to make the loading animation visible
-            setTimeout(function() {
-                tg.sendData(JSON.stringify(orderData));
-                // The Mini App will close automatically after `sendData` is called.
-            }, 1000); // 1 second delay
-        });
-    </script>
+        // This is the most important line.
+        // It sends data and should close the app immediately.
+        console.log("Sending data to bot:", orderData);
+        tg.sendData(JSON.stringify(orderData));
+    });
+</script>
 </body>
 </html>
