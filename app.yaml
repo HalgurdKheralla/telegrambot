@@ -1,0 +1,6 @@
+runtime: python310
+entrypoint: gunicorn -b :$PORT webapp:flask_app
+
+env_variables:
+  BOT_TOKEN: "7927259172:AAHU0koa3rEgPkFnyhPcenaHeb-oahIyvAo"
+  HOST_URL: "https://shadow-455913.ew.r.appspot.com"
